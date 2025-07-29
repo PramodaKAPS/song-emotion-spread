@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.preprocessing import MinMaxScaler
-import sys  # For command-line args (optional)
+import sys
 
 # Function to spread values (add noise + rescale to [-1, 1])
 def spread_and_rescale(series, noise_level=0.05):
@@ -13,24 +13,29 @@ def spread_and_rescale(series, noise_level=0.05):
     scaled = scaler.fit_transform(noisy.values.reshape(-1, 1)).flatten()
     return scaled
 
-# Load CSV (use command-line arg or hardcoded path)
-if len(sys.argv) > 1:
-    csv_filename = sys.argv[1]  # e.g., python spread_plot.py input.csv
-else:
-    csv_filename = 'song_emotion_predictions_taylor_francis_disp.csv'  # Default
+# Default CSV and column names (adjust defaults based on your CSV)
+csv_filename = 'spotify_full_with_predictions.csv' if len(sys.argv) < 2 else sys.argv[1]
+arousal_col = 'arousal_final' if len(sys.argv) < 3 else sys.argv[2]
+valence_col = 'valence_final' if len(sys.argv) < 4 else sys.argv[3]
 
 df = pd.read_csv(csv_filename)
 
-# Apply spreading (adjust noise_level for more/less spread)
-df['arousal_spread'] = spread_and_rescale(df['arousal'], noise_level=0.1)  # Increase for more spread
-df['valence_spread'] = spread_and_rescale(df['valence'], noise_level=0.1)
+# Check if columns exist
+if arousal_col not in df.columns or valence_col not in df.columns:
+    raise ValueError(f"CSV must have '{arousal_col}' and '{valence_col}' columns. Use: python3 spread_plot.py [csv] [arousal_col] [valence_col]")
+
+print(f"Using columns: {arousal_col} and {valence_col}")
+
+# Apply spreading
+df['arousal_spread'] = spread_and_rescale(df[arousal_col])
+df['valence_spread'] = spread_and_rescale(df[valence_col])
 
 # Save new CSV
-new_csv_filename = 'spread_song_emotion_predictions.csv'
+new_csv_filename = 'spread_' + csv_filename
 df.to_csv(new_csv_filename, index=False)
 print(f"New CSV saved: {new_csv_filename}")
 
-# Generate PNG plot (Thayer-style)
+# Generate PNG plot
 plt.figure(figsize=(10, 8))
 sns.scatterplot(x='valence_spread', y='arousal_spread', data=df, alpha=0.7, color='blue')
 plt.axhline(0, color='gray', linestyle='--')
@@ -45,3 +50,4 @@ png_filename = 'spread_thayer_plot.png'
 plt.savefig(png_filename, dpi=300)
 plt.close()
 print(f"Plot saved: {png_filename}")
+
