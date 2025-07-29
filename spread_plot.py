@@ -41,8 +41,8 @@ sns.scatterplot(x='valence_spread', y='arousal_spread', data=df, alpha=0.7, colo
 plt.axhline(0, color='gray', linestyle='--')
 plt.axvline(0, color='gray', linestyle='--')
 plt.title('Spread Arousal vs Valence (Thayer Plot)')
-plt.xlabel('Valence (Spread, -1 to 1)')
-plt.ylabel('Arousal (Spread, -1 to 1)')
+plt.xlabel('Valence - Negative to Positive (Spread, -1 to 1)')
+plt.ylabel('Arousal - Calm to Excited (Spread, -1 to 1)')
 plt.xlim(-1, 1)
 plt.ylim(-1, 1)
 
